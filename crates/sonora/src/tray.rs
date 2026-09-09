@@ -13,6 +13,10 @@ use native::Icon;
 #[cfg(target_os = "linux")]
 use sni::Icon;
 
+/// Longest the tray caption is allowed to render at, in characters. Past this a native popup
+/// menu (Win32 in particular) stretches to match the full string instead of wrapping.
+const MAX_CAPTION_CHARS: usize = 30;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Event {
     Show,
@@ -112,7 +116,7 @@ fn shown(cx: &App) -> Shown {
         PlaybackState::Playing | PlaybackState::Loading
     );
     let caption = match playback.track() {
-        Some(track) => format!("{} – {}", track.artists, track.name),
+        Some(track) => truncate(&format!("{} – {}", track.artists, track.name)),
         None => t!("player-nothing-playing").to_string(),
     };
     Shown {
@@ -127,5 +131,16 @@ fn shown(cx: &App) -> Shown {
         show: t!("tray-show").to_string(),
         quit: t!("app-quit").to_string(),
         playing,
+    }
+}
+
+/// Clips `text` to [`MAX_CAPTION_CHARS`], replacing the tail with an ellipsis so a long title or
+/// artist list cannot stretch the tray menu across the screen.
+fn truncate(text: &str) -> String {
+    let mut chars = text.chars();
+    let head: String = chars.by_ref().take(MAX_CAPTION_CHARS).collect();
+    match chars.next() {
+        Some(_) => format!("{head}…"),
+        None => head,
     }
 }

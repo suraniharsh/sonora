@@ -7,6 +7,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The tray menu no longer stretches across the screen for a long track title or artist list; the
+  caption is truncated with an ellipsis instead.
+
 ## [0.33.0] - 2026-09-09
 
 ### Added
